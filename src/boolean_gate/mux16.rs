@@ -1,7 +1,7 @@
 use super::mux::mux;
 use crate::bit::Bit;
 
-fn mux16(a: [Bit; 16], b: [Bit; 16], sel: Bit) -> [Bit; 16] {
+pub fn mux16(a: [Bit; 16], b: [Bit; 16], sel: Bit) -> [Bit; 16] {
     [
         mux(a[0], b[0], sel),
         mux(a[1], b[1], sel),
