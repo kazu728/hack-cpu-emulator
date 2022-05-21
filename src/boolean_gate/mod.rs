@@ -6,4 +6,5 @@ mod nand;
 mod not;
 mod not16;
 mod or;
+mod or16;
 mod xor;
