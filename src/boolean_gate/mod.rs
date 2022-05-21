@@ -8,4 +8,5 @@ mod not;
 mod not16;
 mod or;
 mod or16;
+mod or8way;
 mod xor;
