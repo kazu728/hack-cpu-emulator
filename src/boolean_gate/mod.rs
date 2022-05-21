@@ -3,6 +3,7 @@ mod and16;
 mod dmux;
 mod mux;
 mod mux16;
+mod mux4way16;
 mod nand;
 mod not;
 mod not16;
