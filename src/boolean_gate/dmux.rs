@@ -1,4 +1,4 @@
-use super::{and::and, not::not};
+use super::{and, not};
 use crate::bit::Bit;
 
 pub fn dmux(i: Bit, sel: Bit) -> (Bit, Bit) {

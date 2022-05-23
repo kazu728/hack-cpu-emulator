@@ -1,4 +1,4 @@
-use super::{mux16::mux16, mux4way16::mux4way16};
+use super::{mux16, mux4way16};
 use crate::bit::Bit;
 use std::convert::TryInto;
 

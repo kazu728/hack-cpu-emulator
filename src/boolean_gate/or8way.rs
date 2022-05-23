@@ -1,7 +1,7 @@
-use super::or::or;
+use super::or;
 use crate::bit::Bit;
 
-fn or8way(a: [Bit; 8]) -> Bit {
+pub fn or8way(a: [Bit; 8]) -> Bit {
     let o1 = or(a[0], a[1]);
     let o2 = or(o1, a[2]);
     let o3 = or(o2, a[3]);

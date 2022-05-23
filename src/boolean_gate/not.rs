@@ -1,4 +1,4 @@
-use super::nand::nand;
+use super::nand;
 use crate::bit::Bit;
 
 pub fn not(a: Bit) -> Bit {

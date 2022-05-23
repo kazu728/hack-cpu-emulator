@@ -1,7 +1,7 @@
-use super::not::not;
+use super::not;
 use crate::bit::Bit;
 
-fn not16(a: [Bit; 16]) -> [Bit; 16] {
+pub fn not16(a: [Bit; 16]) -> [Bit; 16] {
     [
         not(a[0]),
         not(a[1]),

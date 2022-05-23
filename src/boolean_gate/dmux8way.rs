@@ -1,10 +1,8 @@
+use super::{dmux, dmux4way};
+use crate::bit::Bit;
 use std::convert::TryInto;
 
-use crate::bit::Bit;
-
-use super::{dmux::dmux, dmux4way::dmux4way};
-
-fn dmux8way(i: Bit, sel: [Bit; 3]) -> (Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit) {
+pub fn dmux8way(i: Bit, sel: [Bit; 3]) -> (Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit) {
     let (ab, cd, ef, gh) = dmux4way(i, sel[0..2].try_into().unwrap());
 
     let (a, b) = dmux(ab, sel[2]);
@@ -18,7 +16,7 @@ fn dmux8way(i: Bit, sel: [Bit; 3]) -> (Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit) {
 #[cfg(test)]
 mod tests {
     use crate::bit::Bit::{I, O};
-    use crate::boolean_gate::dmux8way::dmux8way;
+    use crate::boolean_gate::dmux8way;
 
     #[test]
     fn test_dmux8way() {

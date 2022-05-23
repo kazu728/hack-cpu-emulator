@@ -1,7 +1,5 @@
+use super::{nand, not};
 use crate::bit::Bit;
-
-use super::nand::nand;
-use super::not::not;
 
 pub fn and(a: Bit, b: Bit) -> Bit {
     let x = nand(a, b);

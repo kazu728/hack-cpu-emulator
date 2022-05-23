@@ -1,6 +1,5 @@
+use super::mux16;
 use crate::bit::Bit;
-
-use super::mux16::mux16;
 
 pub fn mux4way16(
     a: [Bit; 16],
@@ -17,9 +16,8 @@ pub fn mux4way16(
 
 #[cfg(test)]
 mod tests {
-    use crate::bit::Bit::{I, O};
-
     use super::mux4way16;
+    use crate::bit::Bit::{I, O};
     #[test]
     fn test_mux4way16() {
         let a = [I, O, I, I, I, I, I, I, I, O, O, O, I, I, O, I];

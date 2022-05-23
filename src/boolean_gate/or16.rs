@@ -1,7 +1,7 @@
-use super::or::or;
+use super::or;
 use crate::bit::Bit;
 
-fn or16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
+pub fn or16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     [
         or(a[0], b[0]),
         or(a[1], b[1]),

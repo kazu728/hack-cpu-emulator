@@ -1,6 +1,6 @@
 use crate::bit::Bit;
 
-use super::{nand::nand, not::not};
+use super::{nand, not};
 
 pub fn or(a: Bit, b: Bit) -> Bit {
     let x = not(a);

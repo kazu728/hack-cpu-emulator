@@ -1,7 +1,7 @@
-use super::and::and;
+use super::and;
 use crate::bit::Bit;
 
-fn and16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
+pub fn and16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     [
         and(a[0], b[0]),
         and(a[1], b[1]),

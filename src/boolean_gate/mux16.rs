@@ -1,4 +1,4 @@
-use super::mux::mux;
+use super::mux;
 use crate::bit::Bit;
 
 pub fn mux16(a: [Bit; 16], b: [Bit; 16], sel: Bit) -> [Bit; 16] {

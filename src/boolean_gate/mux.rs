@@ -1,4 +1,4 @@
-use super::{and::and, not::not, or::or};
+use super::{and, not, or};
 use crate::bit::Bit;
 
 pub fn mux(a: Bit, b: Bit, sel: Bit) -> Bit {

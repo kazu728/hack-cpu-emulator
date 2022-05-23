@@ -1,6 +1,5 @@
+use super::{nand, not, or};
 use crate::bit::Bit;
-
-use super::{nand::nand, not::not, or::or};
 
 pub fn xor(a: Bit, b: Bit) -> Bit {
     let nota = not(a);

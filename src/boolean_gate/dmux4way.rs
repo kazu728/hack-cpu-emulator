@@ -1,4 +1,4 @@
-use super::dmux::dmux;
+use super::dmux;
 use crate::bit::Bit;
 
 pub fn dmux4way(i: Bit, sel: [Bit; 2]) -> (Bit, Bit, Bit, Bit) {
