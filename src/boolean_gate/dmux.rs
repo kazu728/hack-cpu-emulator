@@ -1,7 +1,7 @@
 use super::{and::and, not::not};
 use crate::bit::Bit;
 
-fn dmux(i: Bit, sel: Bit) -> (Bit, Bit) {
+pub fn dmux(i: Bit, sel: Bit) -> (Bit, Bit) {
     let a = and(i, not(sel));
     let b = and(i, sel);
 
