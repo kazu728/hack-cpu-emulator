@@ -1,6 +1,7 @@
 mod and;
 mod and16;
 mod dmux;
+mod dmux4way;
 mod mux;
 mod mux16;
 mod mux4way16;
