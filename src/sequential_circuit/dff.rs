@@ -2,8 +2,8 @@ use crate::bit::Bit;
 use crate::bit::Bit::{I, O};
 
 pub struct Dff {
-    prev: Bit,
-    current: Bit,
+    pub prev: Bit,
+    pub current: Bit,
 }
 
 impl Dff {
@@ -13,7 +13,7 @@ impl Dff {
             current: O,
         }
     }
-    fn io(&mut self, a: Bit) -> Bit {
+    pub fn io(&mut self, a: Bit) -> Bit {
         self.prev = self.current;
         self.current = a;
 
