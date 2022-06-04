@@ -1,6 +1,7 @@
 use crate::bit::Bit;
 use crate::bit::Bit::{I, O};
 
+#[derive(Clone, Copy)]
 pub struct Dff {
     pub prev: Bit,
     pub current: Bit,
