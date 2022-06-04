@@ -1,7 +1,7 @@
 use super::Dff;
 use crate::{bit::Bit, boolean_gate::mux};
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct BinaryCell {
     pub dff: Dff,
 }
