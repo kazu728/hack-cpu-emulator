@@ -1,24 +1,11 @@
 use super::Register;
 use crate::bit::Bit;
-use crate::bit::Bit::{I, O};
 use crate::boolean_gate::{mux16, mux8way16};
+use crate::util::transform_from_byte_to_usize;
 
-fn transform_from_bit_to_index(bits: [Bit; 3]) -> usize {
-    match bits {
-        [O, O, O] => 0,
-        [O, O, I] => 1,
-        [O, I, O] => 2,
-        [O, I, I] => 3,
-        [I, O, O] => 4,
-        [I, O, I] => 5,
-        [I, I, O] => 6,
-        [I, I, I] => 7,
-    }
-}
-
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Ram8 {
-    registers: [Register; 8],
+    pub registers: [Register; 8],
 }
 
 impl Ram8 {
@@ -28,7 +15,7 @@ impl Ram8 {
         }
     }
 
-    fn io(&mut self, input: [Bit; 16], address: [Bit; 3], load: Bit) -> [Bit; 16] {
+    pub fn io(&mut self, input: [Bit; 16], address: [Bit; 3], load: Bit) -> [Bit; 16] {
         let words = self
             .registers
             .map(|r| r.binary_cells.map(|bc| bc.dff.current));
@@ -38,7 +25,7 @@ impl Ram8 {
         );
 
         if load == Bit::I {
-            self.registers[transform_from_bit_to_index(address)]
+            self.registers[transform_from_byte_to_usize(address)]
                 .binary_cells
                 .iter_mut()
                 .enumerate()
