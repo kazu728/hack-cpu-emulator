@@ -2,6 +2,7 @@ mod bit;
 mod dff;
 mod ram64;
 mod ram8;
+mod ram512;
 mod register;
 
 pub use bit::BinaryCell;
