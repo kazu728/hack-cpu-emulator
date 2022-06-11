@@ -1,4 +1,5 @@
 mod bit;
+mod counter;
 mod dff;
 mod ram16k;
 mod ram4k;
@@ -8,6 +9,7 @@ mod ram8;
 mod register;
 
 pub use bit::BinaryCell;
+pub use counter::PC;
 pub use dff::Dff;
 pub use ram16k::Ram16k;
 pub use ram4k::Ram4k;
