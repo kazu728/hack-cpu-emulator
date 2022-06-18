@@ -1,7 +1,6 @@
 use super::Ram512;
-use crate::util::transform_from_byte_to_usize;
+use crate::util::parse_address;
 use crate::{bit::Bit, boolean_gate::mux16};
-use std::convert::TryInto;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ram4k {
@@ -15,13 +14,9 @@ impl Ram4k {
         }
     }
 
-    pub fn io(&mut self, input: [Bit; 16], address: [Bit; 12], load: Bit) -> [Bit; 16] {
-        let higher_bit: [Bit; 3] = address[0..3].try_into().unwrap();
-        let lower_bit: [Bit; 9] = address[3..12].try_into().unwrap();
-
-        let index = transform_from_byte_to_usize(higher_bit);
-
-        let out = self.ram512s[index].io(input, lower_bit, load);
+    pub fn ram4k(&mut self, input: [Bit; 16], address: &[Bit], load: Bit) -> [Bit; 16] {
+        let (lower_bit, index) = parse_address(address);
+        let out = self.ram512s[index].ram512(input, lower_bit, load);
 
         mux16(out, input, load)
     }
@@ -40,11 +35,11 @@ mod tests {
 
         let mut ram4k = Ram4k::new();
 
-        let output1 = ram4k.io(input, [O, O, O, O, O, O, O, O, O, O, O, O], I);
-        let output2 = ram4k.io(input2, [O, O, O, O, O, O, O, O, O, O, O, O], O);
-        let output3 = ram4k.io(input2, [O, I, I, O, O, O, O, O, O, I, O, I], I);
-        let output4 = ram4k.io(input3, [O, I, I, O, O, O, O, O, O, I, O, I], O);
-        let output5 = ram4k.io(input3, [O, I, I, O, O, O, O, O, O, I, O, I], I);
+        let output1 = ram4k.ram4k(input, &[O, O, O, O, O, O, O, O, O, O, O, O], I);
+        let output2 = ram4k.ram4k(input2, &[O, O, O, O, O, O, O, O, O, O, O, O], O);
+        let output3 = ram4k.ram4k(input2, &[O, I, I, O, O, O, O, O, O, I, O, I], I);
+        let output4 = ram4k.ram4k(input3, &[O, I, I, O, O, O, O, O, O, I, O, I], O);
+        let output5 = ram4k.ram4k(input3, &[O, I, I, O, O, O, O, O, O, I, O, I], I);
 
         assert_eq!(output1, input);
         assert_eq!(output2, input);

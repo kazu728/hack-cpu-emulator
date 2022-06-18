@@ -1,6 +1,5 @@
 use super::Ram4k;
-use crate::{bit::Bit, boolean_gate::mux16, util::transform_from_byte_to_usize};
-use std::convert::TryInto;
+use crate::{bit::Bit, boolean_gate::mux16, util::parse_address};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ram16k {
@@ -14,18 +13,12 @@ impl Ram16k {
         }
     }
 
-    pub fn io(&mut self, input: [Bit; 16], address: [Bit; 14], load: Bit) -> [Bit; 16] {
-        let _higher_bit: [Bit; 2] = address[0..2].try_into().unwrap();
-        let lower_bit: [Bit; 12] = address[2..14].try_into().unwrap();
+    pub fn ram16k(&mut self, input: [Bit; 16], address: &[Bit], load: Bit) -> [Bit; 16] {
+        let _address = &[&[Bit::O], address].concat();
 
-        let higher_bit: [Bit; 3] = [[Bit::O; 1].to_vec(), _higher_bit.to_vec()]
-            .concat()
-            .try_into()
-            .unwrap();
+        let (lower_bit, index) = parse_address(_address);
 
-        let index = transform_from_byte_to_usize(higher_bit);
-
-        let out = self.ram4ks[index].io(input, lower_bit, load);
+        let out = self.ram4ks[index].ram4k(input, lower_bit, load);
 
         mux16(out, input, load)
     }
@@ -44,11 +37,11 @@ mod tests {
 
         let mut ram16k = Ram16k::new();
 
-        let output1 = ram16k.io(input, [O, O, O, O, O, O, O, O, O, O, O, O, O, O], I);
-        let output2 = ram16k.io(input2, [O, O, O, O, O, O, O, O, O, O, O, O, O, O], O);
-        let output3 = ram16k.io(input2, [O, I, I, O, O, O, O, O, O, I, O, I, O, I], I);
-        let output4 = ram16k.io(input3, [O, I, I, O, O, O, O, O, O, I, O, I, O, I], O);
-        let output5 = ram16k.io(input3, [O, I, I, O, O, O, O, O, O, I, O, I, O, I], I);
+        let output1 = ram16k.ram16k(input, &[O, O, O, O, O, O, O, O, O, O, O, O, O, O], I);
+        let output2 = ram16k.ram16k(input2, &[O, O, O, O, O, O, O, O, O, O, O, O, O, O], O);
+        let output3 = ram16k.ram16k(input2, &[O, I, I, O, O, O, O, O, O, I, O, I, O, I], I);
+        let output4 = ram16k.ram16k(input3, &[O, I, I, O, O, O, O, O, O, I, O, I, O, I], O);
+        let output5 = ram16k.ram16k(input3, &[O, I, I, O, O, O, O, O, O, I, O, I, O, I], I);
 
         assert_eq!(output1, input);
         assert_eq!(output2, input);

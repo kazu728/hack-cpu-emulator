@@ -1,7 +1,6 @@
 use super::Ram64;
-use crate::util::transform_from_byte_to_usize;
+use crate::util::parse_address;
 use crate::{bit::Bit, boolean_gate::mux16};
-use std::convert::TryInto;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ram512 {
@@ -15,13 +14,10 @@ impl Ram512 {
         }
     }
 
-    pub fn io(&mut self, input: [Bit; 16], address: [Bit; 9], load: Bit) -> [Bit; 16] {
-        let high_bit: [Bit; 3] = address[0..3].try_into().unwrap();
-        let lower_bit: [Bit; 6] = address[3..9].try_into().unwrap();
+    pub fn ram512(&mut self, input: [Bit; 16], address: &[Bit], load: Bit) -> [Bit; 16] {
+        let (lower_bit, index) = parse_address(address);
 
-        let index = transform_from_byte_to_usize(high_bit);
-
-        let out = self.ram64s[index].io(input, lower_bit, load);
+        let out = self.ram64s[index].ram64(input, lower_bit, load);
 
         mux16(out, input, load)
     }
@@ -40,11 +36,11 @@ mod tests {
 
         let mut ram512 = Ram512::new();
 
-        let output1 = ram512.io(input, [O, O, O, O, O, O, O, O, O], I);
-        let output2 = ram512.io(input2, [O, O, O, O, O, O, O, O, O], O);
-        let output3 = ram512.io(input2, [O, I, I, O, O, O, O, O, O], I);
-        let output4 = ram512.io(input3, [O, I, I, O, O, O, O, O, O], O);
-        let output5 = ram512.io(input3, [O, I, I, O, O, O, O, O, O], I);
+        let output1 = ram512.ram512(input, &[O, O, O, O, O, O, O, O, O], I);
+        let output2 = ram512.ram512(input2, &[O, O, O, O, O, O, O, O, O], O);
+        let output3 = ram512.ram512(input2, &[O, I, I, O, O, O, O, O, O], I);
+        let output4 = ram512.ram512(input3, &[O, I, I, O, O, O, O, O, O], O);
+        let output5 = ram512.ram512(input3, &[O, I, I, O, O, O, O, O, O], I);
 
         assert_eq!(output1, input);
         assert_eq!(output2, input);

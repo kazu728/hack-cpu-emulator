@@ -1,6 +1,5 @@
 use super::Ram8;
-use crate::{bit::Bit, boolean_gate::mux16, util::transform_from_byte_to_usize};
-use std::convert::TryInto;
+use crate::{bit::Bit, boolean_gate::mux16, util::parse_address};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ram64 {
@@ -13,13 +12,10 @@ impl Ram64 {
             rams8s: [Ram8::new(); 8],
         }
     }
-    pub fn io(&mut self, input: [Bit; 16], address: [Bit; 6], load: Bit) -> [Bit; 16] {
-        let higher_bit: [Bit; 3] = address[0..3].try_into().unwrap();
-        let lower_bit: [Bit; 3] = address[3..6].try_into().unwrap();
+    pub fn ram64(&mut self, input: [Bit; 16], address: &[Bit], load: Bit) -> [Bit; 16] {
+        let (lower_bit, index) = parse_address(address);
 
-        let higher_bit_index = transform_from_byte_to_usize(higher_bit);
-
-        let out = self.rams8s[higher_bit_index].io(input, lower_bit, load);
+        let out = self.rams8s[index].ram8(input, lower_bit, load);
 
         mux16(out, input, load)
     }
@@ -40,10 +36,10 @@ mod tests {
 
         let ram64 = &mut Ram64::new();
 
-        let output1 = ram64.io(input, [I, O, I, O, I, O], I);
-        let output2 = ram64.io(input2, [I, O, I, O, I, O], O);
-        let output3 = ram64.io(input2, [O, O, O, O, O, O], O);
-        let output4 = ram64.io(input3, [O, O, O, O, O, O], I);
+        let output1 = ram64.ram64(input, &[I, O, I, O, I, O], I);
+        let output2 = ram64.ram64(input2, &[I, O, I, O, I, O], O);
+        let output3 = ram64.ram64(input2, &[O, O, O, O, O, O], O);
+        let output4 = ram64.ram64(input3, &[O, O, O, O, O, O], I);
 
         assert_eq!(output1, input);
         assert_eq!(output1, output2);

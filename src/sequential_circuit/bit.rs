@@ -13,14 +13,12 @@ impl BinaryCell {
         }
     }
 
-    pub fn io(&mut self, input: Bit, load: Bit) -> Bit {
-        let out = mux(self.dff.current, input, load);
-
+    pub fn binary_cell(&mut self, input: Bit, load: Bit) -> Bit {
         if load == Bit::I {
-            self.dff.io(input);
+            self.dff.dff(input);
         }
 
-        out
+        mux(self.dff.current, input, load)
     }
 }
 
@@ -33,13 +31,13 @@ mod tests {
     fn out_current_bit() {
         let mut binaray_cell = BinaryCell::new();
 
-        let a = binaray_cell.io(O, I);
-        let b = binaray_cell.io(I, I);
-        let c = binaray_cell.io(O, O);
-        let d = binaray_cell.io(O, I);
-        let e = binaray_cell.io(I, O);
-        let f = binaray_cell.io(O, I);
-        let g = binaray_cell.io(I, I);
+        let a = binaray_cell.binary_cell(O, I);
+        let b = binaray_cell.binary_cell(I, I);
+        let c = binaray_cell.binary_cell(O, O);
+        let d = binaray_cell.binary_cell(O, I);
+        let e = binaray_cell.binary_cell(I, O);
+        let f = binaray_cell.binary_cell(O, I);
+        let g = binaray_cell.binary_cell(I, I);
 
         assert_eq!(a, O);
         assert_eq!(b, I);

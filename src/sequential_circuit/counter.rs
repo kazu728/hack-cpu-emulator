@@ -15,7 +15,8 @@ impl PC {
     }
 
     pub fn count(&mut self, input: [Bit; 16], inc: Bit, load: Bit, reset: Bit) -> [Bit; 16] {
-        let current: [Bit; 16] = self.counter.binary_cells.map(|bc| bc.dff.current);
+        let current: [Bit; 16] = self.counter.gen_bit_arr();
+
         let next = inc16(current);
 
         let inc_outout = mux16(current, next, inc);
@@ -27,7 +28,7 @@ impl PC {
             reset,
         );
 
-        self.counter.io(out, I);
+        self.counter.register(out, I);
 
         out
     }
@@ -49,7 +50,7 @@ mod tests {
         let input: [Bit; 16] = [O, O, I, I, O, I, O, O, O, I, O, O, O, O, I, I];
 
         let mut pc = PC::new();
-        pc.counter.io(initial_counter, I);
+        pc.counter.register(initial_counter, I);
 
         let output1 = pc.count(input, I, O, O);
         let output2 = pc.count(input, O, I, O);
