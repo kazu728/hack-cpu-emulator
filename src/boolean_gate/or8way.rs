@@ -1,7 +1,6 @@
 use super::or;
-use crate::bit::Bit;
 
-pub fn or8way(a: [Bit; 8]) -> Bit {
+pub fn or8way(a: [u8; 8]) -> u8 {
     let o1 = or(a[0], a[1]);
     let o2 = or(o1, a[2]);
     let o3 = or(o2, a[3]);
@@ -14,15 +13,14 @@ pub fn or8way(a: [Bit; 8]) -> Bit {
 
 #[cfg(test)]
 mod tests {
-    use crate::bit::Bit::{I, O};
-
     use super::or8way;
+
     #[test]
     fn test_or8way() {
-        let a = [O, O, O, O, O, O, O, O];
-        let b = [O, O, O, I, O, O, O, O];
+        let a = [0, 0, 0, 0, 0, 0, 0, 0];
+        let b = [0, 0, 0, 1, 0, 0, 0, 0];
 
-        assert_eq!(or8way(a), O);
-        assert_eq!(or8way(b), I)
+        assert_eq!(or8way(a), 0);
+        assert_eq!(or8way(b), 1)
     }
 }

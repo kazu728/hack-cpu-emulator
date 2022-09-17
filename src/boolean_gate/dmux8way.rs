@@ -1,8 +1,7 @@
 use super::{dmux, dmux4way};
-use crate::bit::Bit;
 use std::convert::TryInto;
 
-pub fn dmux8way(i: Bit, sel: [Bit; 3]) -> (Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit) {
+pub fn dmux8way(i: u8, sel: [u8; 3]) -> (u8, u8, u8, u8, u8, u8, u8, u8) {
     let (ab, cd, ef, gh) = dmux4way(i, sel[0..2].try_into().unwrap());
 
     let (a, b) = dmux(ab, sel[2]);
@@ -15,18 +14,17 @@ pub fn dmux8way(i: Bit, sel: [Bit; 3]) -> (Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bi
 
 #[cfg(test)]
 mod tests {
-    use crate::bit::Bit::{I, O};
     use crate::boolean_gate::dmux8way;
 
     #[test]
     fn test_dmux8way() {
-        assert_eq!(dmux8way(I, [O, O, O]), (I, O, O, O, O, O, O, O));
-        assert_eq!(dmux8way(I, [O, O, I]), (O, I, O, O, O, O, O, O));
-        assert_eq!(dmux8way(I, [O, I, O]), (O, O, I, O, O, O, O, O));
-        assert_eq!(dmux8way(I, [O, I, I]), (O, O, O, I, O, O, O, O));
-        assert_eq!(dmux8way(I, [I, O, O]), (O, O, O, O, I, O, O, O));
-        assert_eq!(dmux8way(I, [I, O, I]), (O, O, O, O, O, I, O, O));
-        assert_eq!(dmux8way(I, [I, I, O]), (O, O, O, O, O, O, I, O));
-        assert_eq!(dmux8way(I, [I, I, I]), (O, O, O, O, O, O, O, I));
+        assert_eq!(dmux8way(1, [0, 0, 0]), (1, 0, 0, 0, 0, 0, 0, 0));
+        assert_eq!(dmux8way(1, [0, 0, 1]), (0, 1, 0, 0, 0, 0, 0, 0));
+        assert_eq!(dmux8way(1, [0, 1, 0]), (0, 0, 1, 0, 0, 0, 0, 0));
+        assert_eq!(dmux8way(1, [0, 1, 1]), (0, 0, 0, 1, 0, 0, 0, 0));
+        assert_eq!(dmux8way(1, [1, 0, 0]), (0, 0, 0, 0, 1, 0, 0, 0));
+        assert_eq!(dmux8way(1, [1, 0, 1]), (0, 0, 0, 0, 0, 1, 0, 0));
+        assert_eq!(dmux8way(1, [1, 1, 0]), (0, 0, 0, 0, 0, 0, 1, 0));
+        assert_eq!(dmux8way(1, [1, 1, 1]), (0, 0, 0, 0, 0, 0, 0, 1));
     }
 }

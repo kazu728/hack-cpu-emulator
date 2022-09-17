@@ -1,24 +1,22 @@
-use crate::bit::Bit;
-use crate::bit::Bit::{I, O};
-
-pub fn nand(a: Bit, b: Bit) -> Bit {
+pub fn nand(a: u8, b: u8) -> u8 {
     match (a, b) {
-        (O, O) => I,
-        (O, I) => I,
-        (I, O) => I,
-        (I, I) => O,
+        (0, 0) => 1,
+        (0, 1) => 1,
+        (1, 0) => 1,
+        (1, 1) => 0,
+        _ => unreachable!(),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{nand, I, O};
+    use super::nand;
 
     #[test]
     fn test_nand() {
-        assert_eq!(nand(O, O), I);
-        assert_eq!(nand(O, I), I);
-        assert_eq!(nand(I, O), I);
-        assert_eq!(nand(I, I), O);
+        assert_eq!(nand(0, 0), 1);
+        assert_eq!(nand(0, 1), 1);
+        assert_eq!(nand(1, 0), 1);
+        assert_eq!(nand(1, 1), 0);
     }
 }

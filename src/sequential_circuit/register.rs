@@ -1,5 +1,4 @@
 use super::BinaryCell;
-use crate::bit::Bit;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Register {
@@ -13,11 +12,11 @@ impl Register {
         }
     }
 
-    pub fn gen_bit_arr(&self) -> [Bit; 16] {
+    pub fn gen_bit_arr(&self) -> [u8; 16] {
         self.binary_cells.map(|bc| bc.dff.current)
     }
 
-    pub fn register(&mut self, input: [Bit; 16], load: Bit) -> [Bit; 16] {
+    pub fn register(&mut self, input: [u8; 16], load: u8) -> [u8; 16] {
         let o0 = self.binary_cells[0].binary_cell(input[0], load);
         let o1 = self.binary_cells[1].binary_cell(input[1], load);
         let o2 = self.binary_cells[2].binary_cell(input[2], load);
@@ -44,19 +43,18 @@ impl Register {
 #[cfg(test)]
 
 mod tests {
-    use crate::bit::Bit::{I, O};
     use crate::sequential_circuit::register::Register;
 
     #[test]
     fn test_register() {
         let mut register = Register::new();
 
-        let a = [O, I, I, O, I, O, I, O, O, O, I, I, O, I, O, I];
-        let b = [O, I, O, O, O, O, O, I, I, O, O, I, I, O, O, I];
+        let a = [0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1];
+        let b = [0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1];
 
-        let o1 = register.register(a, I);
-        let o2 = register.register(b, O);
-        let o3 = register.register(b, I);
+        let o1 = register.register(a, 1);
+        let o2 = register.register(b, 0);
+        let o3 = register.register(b, 1);
 
         assert_eq!(o1, a);
         assert_eq!(o2, a);

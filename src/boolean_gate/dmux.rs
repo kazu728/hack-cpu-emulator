@@ -1,7 +1,6 @@
 use super::{and, not};
-use crate::bit::Bit;
 
-pub fn dmux(i: Bit, sel: Bit) -> (Bit, Bit) {
+pub fn dmux(i: u8, sel: u8) -> (u8, u8) {
     let a = and(i, not(sel));
     let b = and(i, sel);
 
@@ -11,11 +10,10 @@ pub fn dmux(i: Bit, sel: Bit) -> (Bit, Bit) {
 #[cfg(test)]
 mod tests {
     use super::dmux;
-    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_dmux() {
-        assert_eq!(dmux(I, O), (I, O));
-        assert_eq!(dmux(I, I), (O, I))
+        assert_eq!(dmux(1, 0), (1, 0));
+        assert_eq!(dmux(1, 1), (0, 1))
     }
 }

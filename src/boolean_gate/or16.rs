@@ -1,7 +1,6 @@
 use super::or;
-use crate::bit::Bit;
 
-pub fn or16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
+pub fn or16(a: [u8; 16], b: [u8; 16]) -> [u8; 16] {
     [
         or(a[0], b[0]),
         or(a[1], b[1]),
@@ -25,13 +24,12 @@ pub fn or16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
 #[cfg(test)]
 mod tests {
     use super::or16;
-    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_or16() {
-        let a = [I, O, I, I, I, I, I, I, I, O, O, O, I, I, O, I];
-        let b = [O, I, O, O, I, O, I, O, O, O, I, I, O, O, I, O];
-        let output = [I, I, I, I, I, I, I, I, I, O, I, I, I, I, I, I];
+        let a = [1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1];
+        let b = [0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 0];
+        let output = [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1];
 
         assert_eq!(or16(a, b), output);
     }

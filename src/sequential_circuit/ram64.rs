@@ -1,5 +1,5 @@
 use super::Ram8;
-use crate::{bit::Bit, boolean_gate::mux16, util::parse_address};
+use crate::{boolean_gate::mux16, util::parse_address};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ram64 {
@@ -12,7 +12,7 @@ impl Ram64 {
             rams8s: [Ram8::new(); 8],
         }
     }
-    pub fn ram64(&mut self, input: [Bit; 16], address: &[Bit], load: Bit) -> [Bit; 16] {
+    pub fn ram64(&mut self, input: [u8; 16], address: &[u8], load: u8) -> [u8; 16] {
         let (lower_bit, index) = parse_address(address);
 
         let out = self.rams8s[index].ram8(input, lower_bit, load);
@@ -23,23 +23,22 @@ impl Ram64 {
 
 #[cfg(test)]
 mod tests {
-    use crate::bit::Bit::{I, O};
 
     use super::Ram64;
     #[test]
     fn test_ram64() {
-        let initial_value = [O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O];
+        let initial_value = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-        let input = [I, O, I, O, O, I, O, I, O, I, O, O, I, I, O, O];
-        let input2 = [O, I, I, I, O, O, O, I, I, O, I, O, I, I, I, O];
-        let input3 = [I, I, O, I, O, I, I, O, I, O, I, O, O, O, I, O];
+        let input = [1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 0];
+        let input2 = [0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0];
+        let input3 = [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0];
 
         let ram64 = &mut Ram64::new();
 
-        let output1 = ram64.ram64(input, &[I, O, I, O, I, O], I);
-        let output2 = ram64.ram64(input2, &[I, O, I, O, I, O], O);
-        let output3 = ram64.ram64(input2, &[O, O, O, O, O, O], O);
-        let output4 = ram64.ram64(input3, &[O, O, O, O, O, O], I);
+        let output1 = ram64.ram64(input, &[1, 0, 1, 0, 1, 0], 1);
+        let output2 = ram64.ram64(input2, &[1, 0, 1, 0, 1, 0], 0);
+        let output3 = ram64.ram64(input2, &[0, 0, 0, 0, 0, 0], 0);
+        let output4 = ram64.ram64(input3, &[0, 0, 0, 0, 0, 0], 1);
 
         assert_eq!(output1, input);
         assert_eq!(output1, output2);

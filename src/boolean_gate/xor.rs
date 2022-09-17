@@ -1,7 +1,6 @@
 use super::{nand, not, or};
-use crate::bit::Bit;
 
-pub fn xor(a: Bit, b: Bit) -> Bit {
+pub fn xor(a: u8, b: u8) -> u8 {
     let nota = not(a);
     let notb = not(b);
 
@@ -14,13 +13,12 @@ pub fn xor(a: Bit, b: Bit) -> Bit {
 #[cfg(test)]
 mod tests {
     use super::xor;
-    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_xor() {
-        assert_eq!(xor(O, O), O);
-        assert_eq!(xor(O, I), I);
-        assert_eq!(xor(I, O), I);
-        assert_eq!(xor(I, I), O);
+        assert_eq!(xor(0, 0), 0);
+        assert_eq!(xor(0, 1), 1);
+        assert_eq!(xor(1, 0), 1);
+        assert_eq!(xor(1, 1), 0);
     }
 }
