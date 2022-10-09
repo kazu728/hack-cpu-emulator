@@ -1,17 +1,19 @@
+use crate::bit::{Bit, Bit::O};
+
 #[derive(Debug, Clone, Copy)]
 pub struct Dff {
-    pub prev: u8,
-    pub current: u8,
+    pub prev: Bit,
+    pub current: Bit,
 }
 
 impl Dff {
     pub fn new() -> Self {
         Dff {
-            prev: 0,
-            current: 0,
+            prev: O,
+            current: O,
         }
     }
-    pub fn dff(&mut self, a: u8) -> u8 {
+    pub fn dff(&mut self, a: Bit) -> Bit {
         self.prev = self.current;
         self.current = a;
 
@@ -22,14 +24,15 @@ impl Dff {
 #[cfg(test)]
 mod tests {
     use super::Dff;
+    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_dff() {
         let mut dff = Dff::new();
 
-        dff.dff(1);
+        dff.dff(I);
 
-        assert_eq!(dff.dff(0), 1);
-        assert_eq!(dff.dff(1), 0);
+        assert_eq!(dff.dff(O), I);
+        assert_eq!(dff.dff(I), O);
     }
 }

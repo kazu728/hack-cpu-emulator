@@ -1,6 +1,7 @@
 use std::convert::TryInto;
 
 use super::Register;
+use crate::bit::Bit;
 use crate::boolean_gate::{mux16, mux8way16};
 use crate::util::transform_from_byte_to_usize;
 
@@ -16,7 +17,7 @@ impl Ram8 {
         }
     }
 
-    pub fn ram8(&mut self, input: [u8; 16], address: &[u8], load: u8) -> [u8; 16] {
+    pub fn ram8(&mut self, input: [Bit; 16], address: &[Bit], load: Bit) -> [Bit; 16] {
         let words = self.registers.map(|r| r.gen_bit_arr());
 
         let word = mux8way16(
@@ -40,36 +41,37 @@ impl Ram8 {
 #[cfg(test)]
 mod tests {
     use super::Ram8;
+    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_ram8() {
-        let a = [1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1];
-        let b = [1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0];
-        let c = [0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1, 0];
-        let d = [0, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 1, 0];
-        let e = [1, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0];
-        let f = [1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 1];
-        let g = [1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1];
-        let h = [0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0];
+        let a = [I, O, I, I, I, I, I, I, I, O, O, O, I, I, O, I];
+        let b = [I, O, I, I, O, I, O, I, O, I, I, O, I, I, O, O];
+        let c = [O, I, I, I, O, O, O, I, I, O, I, O, I, I, I, O];
+        let d = [O, I, O, O, O, I, I, I, I, O, I, O, O, O, I, O];
+        let e = [I, I, O, I, O, I, I, O, I, O, I, O, O, O, I, O];
+        let f = [I, I, O, I, O, I, O, O, I, O, I, I, I, O, I, I];
+        let g = [I, I, I, O, O, O, O, O, I, I, I, I, I, I, I, I];
+        let h = [O, I, I, O, I, O, O, O, O, I, O, I, I, I, I, O];
 
-        let input = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        let input2 = [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let input = [O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O];
+        let input2 = [I, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O];
 
         let mut ram8 = Ram8::new();
 
-        ram8.registers[0].register(a, 1);
-        ram8.registers[1].register(b, 1);
-        ram8.registers[2].register(c, 1);
-        ram8.registers[3].register(d, 1);
-        ram8.registers[4].register(e, 1);
-        ram8.registers[5].register(f, 1);
-        ram8.registers[6].register(g, 1);
-        ram8.registers[7].register(h, 1);
+        ram8.registers[0].register(a, I);
+        ram8.registers[1].register(b, I);
+        ram8.registers[2].register(c, I);
+        ram8.registers[3].register(d, I);
+        ram8.registers[4].register(e, I);
+        ram8.registers[5].register(f, I);
+        ram8.registers[6].register(g, I);
+        ram8.registers[7].register(h, I);
 
-        let out1 = ram8.ram8(input, &[0, 0, 0], 0);
-        let out2 = ram8.ram8(input, &[0, 1, 1], 0);
-        let out3 = ram8.ram8(input, &[1, 0, 0], 1);
-        let out4 = ram8.ram8(input2, &[1, 0, 0], 0);
+        let out1 = ram8.ram8(input, &[O, O, O], O);
+        let out2 = ram8.ram8(input, &[O, I, I], O);
+        let out3 = ram8.ram8(input, &[I, O, O], I);
+        let out4 = ram8.ram8(input2, &[I, O, O], O);
 
         assert_eq!(out1, a);
         assert_eq!(out2, d);

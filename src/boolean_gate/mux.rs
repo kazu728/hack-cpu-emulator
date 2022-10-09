@@ -1,6 +1,7 @@
 use super::{and, not, or};
+use crate::bit::Bit;
 
-pub fn mux(a: u8, b: u8, sel: u8) -> u8 {
+pub fn mux(a: Bit, b: Bit, sel: Bit) -> Bit {
     let x = and(a, not(sel));
     let y = and(b, sel);
 
@@ -10,16 +11,17 @@ pub fn mux(a: u8, b: u8, sel: u8) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::mux;
+    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_mux() {
-        assert_eq!(mux(0, 0, 0), 0);
-        assert_eq!(mux(0, 1, 0), 0);
-        assert_eq!(mux(1, 0, 0), 1);
-        assert_eq!(mux(1, 1, 0), 1);
-        assert_eq!(mux(0, 0, 0), 0);
-        assert_eq!(mux(0, 1, 1), 1);
-        assert_eq!(mux(1, 0, 1), 0);
-        assert_eq!(mux(1, 1, 1), 1);
+        assert_eq!(mux(O, O, O), O);
+        assert_eq!(mux(O, I, O), O);
+        assert_eq!(mux(I, O, O), I);
+        assert_eq!(mux(I, I, O), I);
+        assert_eq!(mux(O, O, O), O);
+        assert_eq!(mux(O, I, I), I);
+        assert_eq!(mux(I, O, I), O);
+        assert_eq!(mux(I, I, I), I);
     }
 }

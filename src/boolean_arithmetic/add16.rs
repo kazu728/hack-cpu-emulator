@@ -1,6 +1,8 @@
+use crate::bit::Bit;
+
 use super::{full_adder, half_adder};
 
-pub fn add16(a: [u8; 16], b: [u8; 16]) -> [u8; 16] {
+pub fn add16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     let (carry_15, sum_15) = half_adder(a[15], b[15]);
     let (carry_14, sum_14) = full_adder(a[14], b[14], carry_15);
     let (carry_13, sum_13) = full_adder(a[13], b[13], carry_14);
@@ -26,15 +28,16 @@ pub fn add16(a: [u8; 16], b: [u8; 16]) -> [u8; 16] {
 
 #[cfg(test)]
 mod tests {
+    use crate::bit::Bit::{I, O};
 
     use super::add16;
 
     #[test]
     fn test_add16() {
-        let a = [0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 0, 1];
-        let b = [0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1];
+        let a = [O, I, I, O, I, O, I, O, O, O, I, I, O, I, O, I];
+        let b = [O, I, I, I, O, O, I, O, I, I, I, I, O, I, I, I];
 
-        let output = [1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0];
+        let output = [I, I, O, I, I, I, O, I, O, O, I, O, I, I, O, O];
 
         assert_eq!(add16(a, b), output);
     }

@@ -1,5 +1,5 @@
-// #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-// pub enum Bit {
-//     0,
-//     1,
-// }
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Bit {
+    O,
+    I,
+}

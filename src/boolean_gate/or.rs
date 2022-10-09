@@ -1,6 +1,8 @@
+use crate::bit::Bit;
+
 use super::{nand, not};
 
-pub fn or(a: u8, b: u8) -> u8 {
+pub fn or(a: Bit, b: Bit) -> Bit {
     let x = not(a);
     let y = not(b);
 
@@ -10,12 +12,13 @@ pub fn or(a: u8, b: u8) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::or;
+    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_or() {
-        assert_eq!(or(0, 0), 0);
-        assert_eq!(or(0, 1), 1);
-        assert_eq!(or(1, 0), 1);
-        assert_eq!(or(1, 1), 1);
+        assert_eq!(or(O, O), O);
+        assert_eq!(or(O, I), I);
+        assert_eq!(or(I, O), I);
+        assert_eq!(or(I, I), I);
     }
 }

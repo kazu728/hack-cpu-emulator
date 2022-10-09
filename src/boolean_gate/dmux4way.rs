@@ -1,6 +1,7 @@
 use super::dmux;
+use crate::bit::Bit;
 
-pub fn dmux4way(i: u8, sel: [u8; 2]) -> (u8, u8, u8, u8) {
+pub fn dmux4way(i: Bit, sel: [Bit; 2]) -> (Bit, Bit, Bit, Bit) {
     let (ab, cd) = dmux(i, sel[0]);
 
     let (a, b) = dmux(ab, sel[1]);
@@ -12,12 +13,13 @@ pub fn dmux4way(i: u8, sel: [u8; 2]) -> (u8, u8, u8, u8) {
 #[cfg(test)]
 mod tests {
     use super::dmux4way;
+    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_dmux4way() {
-        assert_eq!(dmux4way(1, [0, 0]), (1, 0, 0, 0));
-        assert_eq!(dmux4way(1, [0, 1]), (0, 1, 0, 0));
-        assert_eq!(dmux4way(1, [1, 0]), (0, 0, 1, 0));
-        assert_eq!(dmux4way(1, [1, 1]), (0, 0, 0, 1));
+        assert_eq!(dmux4way(I, [O, O]), (I, O, O, O));
+        assert_eq!(dmux4way(I, [O, I]), (O, I, O, O));
+        assert_eq!(dmux4way(I, [I, O]), (O, O, I, O));
+        assert_eq!(dmux4way(I, [I, I]), (O, O, O, I));
     }
 }

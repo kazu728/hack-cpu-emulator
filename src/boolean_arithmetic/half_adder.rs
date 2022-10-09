@@ -1,6 +1,7 @@
 use super::super::boolean_gate::{and, xor};
+use crate::bit::Bit;
 
-pub fn half_adder(a: u8, b: u8) -> (u8, u8) {
+pub fn half_adder(a: Bit, b: Bit) -> (Bit, Bit) {
     let sum = xor(a, b);
     let carry = and(a, b);
 
@@ -10,12 +11,13 @@ pub fn half_adder(a: u8, b: u8) -> (u8, u8) {
 #[cfg(test)]
 mod tests {
     use super::half_adder;
+    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_half_adder() {
-        assert_eq!(half_adder(0, 0), (0, 0));
-        assert_eq!(half_adder(0, 1), (0, 1));
-        assert_eq!(half_adder(1, 0), (0, 1));
-        assert_eq!(half_adder(1, 1), (1, 0));
+        assert_eq!(half_adder(O, O), (O, O));
+        assert_eq!(half_adder(O, I), (O, I));
+        assert_eq!(half_adder(I, O), (O, I));
+        assert_eq!(half_adder(I, I), (I, O));
     }
 }

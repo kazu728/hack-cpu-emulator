@@ -1,21 +1,25 @@
-pub fn transform_from_byte_to_usize(bits: &[u8]) -> usize {
+use std::convert::TryInto;
+
+use crate::bit::Bit;
+use crate::bit::Bit::{I, O};
+
+pub fn transform_from_byte_to_usize(bits: &[Bit]) -> usize {
     match bits {
-        [0, 0, 0] => 0,
-        [0, 0, 1] => 1,
-        [0, 1, 0] => 2,
-        [0, 1, 1] => 3,
-        [1, 0, 0] => 4,
-        [1, 0, 1] => 5,
-        [1, 1, 0] => 6,
-        [1, 1, 1] => 7,
-        [1, 1, 1] => 7,
+        [O, O, O] => 0,
+        [O, O, I] => 1,
+        [O, I, O] => 2,
+        [O, I, I] => 3,
+        [I, O, O] => 4,
+        [I, O, I] => 5,
+        [I, I, O] => 6,
+        [I, I, I] => 7,
         _ => unreachable!(),
     }
 }
 
-pub fn parse_address(adderss: &[u8]) -> (&[u8], usize) {
-    let higher_bit: &[u8] = &adderss[0..3];
-    let lower_bit: &[u8] = &adderss[3..];
+pub fn parse_address(adderss: &[Bit]) -> (&[Bit], usize) {
+    let higher_bit: &[Bit] = &adderss[0..3];
+    let lower_bit: &[Bit] = &adderss[3..];
 
     let index = transform_from_byte_to_usize(higher_bit);
 

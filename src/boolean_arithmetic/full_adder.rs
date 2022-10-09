@@ -1,8 +1,7 @@
-use crate::boolean_gate::or;
-
 use super::half_adder::half_adder;
+use crate::{bit::Bit, boolean_gate::or};
 
-pub fn full_adder(a: u8, b: u8, c: u8) -> (u8, u8) {
+pub fn full_adder(a: Bit, b: Bit, c: Bit) -> (Bit, Bit) {
     let (carry_ab, sum_ab) = half_adder(a, b);
     let (carry_abc, sum) = half_adder(sum_ab, c);
 
@@ -14,16 +13,17 @@ pub fn full_adder(a: u8, b: u8, c: u8) -> (u8, u8) {
 #[cfg(test)]
 mod tests {
     use super::full_adder;
+    use crate::bit::Bit::{I, O};
 
     #[test]
     fn test_full_adder() {
-        assert_eq!(full_adder(0, 0, 0), (0, 0));
-        assert_eq!(full_adder(0, 0, 1), (0, 1));
-        assert_eq!(full_adder(0, 1, 0), (0, 1));
-        assert_eq!(full_adder(0, 1, 1), (1, 0));
-        assert_eq!(full_adder(1, 0, 0), (0, 1));
-        assert_eq!(full_adder(1, 0, 1), (1, 0));
-        assert_eq!(full_adder(1, 1, 0), (1, 0));
-        assert_eq!(full_adder(1, 1, 1), (1, 1));
+        assert_eq!(full_adder(O, O, O), (O, O));
+        assert_eq!(full_adder(O, O, I), (O, I));
+        assert_eq!(full_adder(O, I, O), (O, I));
+        assert_eq!(full_adder(O, I, I), (I, O));
+        assert_eq!(full_adder(I, O, O), (O, I));
+        assert_eq!(full_adder(I, O, I), (I, O));
+        assert_eq!(full_adder(I, I, O), (I, O));
+        assert_eq!(full_adder(I, I, I), (I, I));
     }
 }

@@ -1,5 +1,6 @@
 use super::Register;
-use crate::{boolean_arithmetic::inc16, boolean_gate::mux16};
+use crate::bit::Bit::{I, O};
+use crate::{bit::Bit, boolean_arithmetic::inc16, boolean_gate::mux16};
 
 #[derive(Debug, Clone, Copy)]
 pub struct PC {
@@ -13,8 +14,8 @@ impl PC {
         }
     }
 
-    pub fn count(&mut self, input: [u8; 16], inc: u8, load: u8, reset: u8) -> [u8; 16] {
-        let current: [u8; 16] = self.counter.gen_bit_arr();
+    pub fn count(&mut self, input: [Bit; 16], inc: Bit, load: Bit, reset: Bit) -> [Bit; 16] {
+        let current: [Bit; 16] = self.counter.gen_bit_arr();
 
         let next = inc16(current);
 
@@ -23,11 +24,11 @@ impl PC {
 
         let out = mux16(
             load_out,
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O],
             reset,
         );
 
-        self.counter.register(out, 1);
+        self.counter.register(out, I);
 
         out
     }
@@ -35,23 +36,26 @@ impl PC {
 
 #[cfg(test)]
 mod tests {
-    use crate::boolean_arithmetic::inc16;
+    use crate::{
+        bit::Bit::{self, I, O},
+        boolean_arithmetic::inc16,
+    };
 
     use super::PC;
 
     #[test]
     fn test_counter() {
-        let zero: [u8; 16] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-        let initial_counter: [u8; 16] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1];
-        let input: [u8; 16] = [0, 0, 1, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1];
+        let zero: [Bit; 16] = [O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, O];
+        let initial_counter: [Bit; 16] = [O, O, O, O, O, O, O, O, O, O, O, O, O, O, I, I];
+        let input: [Bit; 16] = [O, O, I, I, O, I, O, O, O, I, O, O, O, O, I, I];
 
         let mut pc = PC::new();
-        pc.counter.register(initial_counter, 1);
+        pc.counter.register(initial_counter, I);
 
-        let output1 = pc.count(input, 1, 0, 0);
-        let output2 = pc.count(input, 0, 1, 0);
-        let output3 = pc.count(input, 0, 0, 1);
-        let output4 = pc.count(input, 1, 1, 1);
+        let output1 = pc.count(input, I, O, O);
+        let output2 = pc.count(input, O, I, O);
+        let output3 = pc.count(input, O, O, I);
+        let output4 = pc.count(input, I, I, I);
 
         assert_eq!(output1, inc16(initial_counter));
         assert_eq!(output2, input);
