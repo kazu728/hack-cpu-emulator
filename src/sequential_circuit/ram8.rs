@@ -1,9 +1,8 @@
 use std::convert::TryInto;
 
 use super::Register;
-use crate::bit::Bit;
+use crate::bit::{to_decimal, Bit};
 use crate::boolean_gate::{mux16, mux8way16};
-use crate::util::transform_from_byte_to_usize;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Ram8 {
@@ -32,7 +31,7 @@ impl Ram8 {
             address.try_into().unwrap(),
         );
 
-        self.registers[transform_from_byte_to_usize(address)].register(input, load);
+        self.registers[to_decimal(address)].register(input, load);
 
         mux16(word, input, load)
     }
