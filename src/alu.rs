@@ -1,33 +1,35 @@
-use super::add16;
+use crate::adder::*;
 use crate::bit::Bit;
-use crate::bit::Bit::O;
-use crate::boolean_gate::{and16, mux16, not, not16, or, or8way};
-use std::convert::TryInto;
+use crate::bit::Bit::*;
+use crate::gate::*;
 
 pub fn alu(
-    x: [Bit; 16],
-    y: [Bit; 16],
-    zx: Bit,
-    nx: Bit,
-    zy: Bit,
-    ny: Bit,
-    f: Bit,
-    no: Bit,
+    x: [Bit; 16], // input
+    y: [Bit; 16], // input
+    zx: Bit,      // 入力xをゼロにする
+    nx: Bit,      // 入力xを反転(negate)する
+    zy: Bit,      // 入力yをゼロにする
+    ny: Bit,      // 入力yを反転する
+    f: Bit,       // 関数コード:1 は「加算」、0 は「And 演算」に対応する
+    no: Bit,      // 出力 out を反転する
 ) -> ([Bit; 16], Bit, Bit) {
-    let zxout = apply_zx(x, zx);
-    let nxout = apply_nx(zxout, nx);
+    let out = apply_no(
+        apply_f(
+            apply_nx(apply_zx(x, zx), nx),
+            apply_ny(apply_zy(y, zy), ny),
+            f,
+        ),
+        no,
+    );
 
-    let zyout = apply_zy(y, zy);
-    let nyout = apply_ny(zyout, ny);
-
-    let f_out = apply_f(nxout, nyout, f);
-
-    let out = apply_no(f_out, no);
-
-    let o1 = or8way(out[0..8].try_into().unwrap());
-    let o2 = or8way(out[8..16].try_into().unwrap());
-
-    let zr = not(or(o1, o2));
+    let zr = not(or(
+        or8way([
+            out[0], out[1], out[2], out[3], out[4], out[5], out[6], out[7],
+        ]),
+        or8way([
+            out[8], out[9], out[10], out[11], out[12], out[13], out[14], out[15],
+        ]),
+    ));
 
     let ng = out[0];
 
@@ -62,12 +64,45 @@ fn apply_no(out: [Bit; 16], no: Bit) -> [Bit; 16] {
 
 #[cfg(test)]
 mod tests {
-    use super::{alu, apply_f, apply_no, apply_nx, apply_zx, apply_zy};
-    use crate::{
-        bit::Bit::{I, O},
-        boolean_arithmetic::{add16, inc16},
-        boolean_gate::{and16, not16, or16},
-    };
+    use super::*;
+
+    #[test]
+    fn test_half_adder() {
+        assert_eq!(half_adder(O, O), (O, O));
+        assert_eq!(half_adder(O, I), (O, I));
+        assert_eq!(half_adder(I, O), (O, I));
+        assert_eq!(half_adder(I, I), (I, O));
+    }
+
+    #[test]
+    fn test_full_adder() {
+        assert_eq!(full_adder(O, O, O), (O, O));
+        assert_eq!(full_adder(O, O, I), (O, I));
+        assert_eq!(full_adder(O, I, O), (O, I));
+        assert_eq!(full_adder(O, I, I), (I, O));
+        assert_eq!(full_adder(I, O, O), (O, I));
+        assert_eq!(full_adder(I, O, I), (I, O));
+        assert_eq!(full_adder(I, I, O), (I, O));
+        assert_eq!(full_adder(I, I, I), (I, I));
+    }
+
+    #[test]
+    fn test_add16() {
+        let a = [O, I, I, O, I, O, I, O, O, O, I, I, O, I, O, I];
+        let b = [O, I, I, I, O, O, I, O, I, I, I, I, O, I, I, I];
+
+        let output = [I, I, O, I, I, I, O, I, O, O, I, O, I, I, O, O];
+
+        assert_eq!(add16(a, b), output);
+    }
+
+    #[test]
+    fn test_inc16() {
+        let a = [O, I, I, O, I, O, I, O, O, O, I, I, O, I, O, I];
+        let b = [O, I, I, O, I, O, I, O, O, O, I, I, O, I, I, O];
+
+        assert_eq!(inc16(a), b);
+    }
 
     #[test]
     fn test_zx() {

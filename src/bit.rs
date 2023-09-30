@@ -6,24 +6,28 @@ pub enum Bit {
     I = 1,
 }
 
-pub fn to_decimal(bits: &[Bit]) -> usize {
-    let mut pow = bits.len() as u32;
+pub trait BitSliceToUsize {
+    fn to_usize(&self) -> usize;
+}
 
-    bits.iter().fold(0, |acc, x| {
-        pow -= 1;
-
-        match x {
-            O => acc,
-            I => acc + 2_i32.pow(pow),
-        }
-    }) as usize
+impl BitSliceToUsize for [Bit] {
+    fn to_usize(&self) -> usize {
+        self.iter().fold(0, |acc, &bit| {
+            acc * 2
+                + match bit {
+                    O => 0,
+                    I => 1,
+                }
+        })
+    }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::bit::Bit::{I, O};
-
-    use super::to_decimal;
+    use crate::bit::{
+        Bit::{I, O},
+        BitSliceToUsize,
+    };
 
     #[test]
     fn test_to_decimal() {
@@ -37,14 +41,14 @@ mod tests {
         let h = &[I, I, I];
         let i = &[I, I, I, I, I, I, I, I];
 
-        assert_eq!(to_decimal(a), 0);
-        assert_eq!(to_decimal(b), 1);
-        assert_eq!(to_decimal(c), 2);
-        assert_eq!(to_decimal(d), 3);
-        assert_eq!(to_decimal(e), 4);
-        assert_eq!(to_decimal(f), 5);
-        assert_eq!(to_decimal(g), 6);
-        assert_eq!(to_decimal(h), 7);
-        assert_eq!(to_decimal(i), 255);
+        assert_eq!(a.to_usize(), 0);
+        assert_eq!(b.to_usize(), 1);
+        assert_eq!(c.to_usize(), 2);
+        assert_eq!(d.to_usize(), 3);
+        assert_eq!(e.to_usize(), 4);
+        assert_eq!(f.to_usize(), 5);
+        assert_eq!(g.to_usize(), 6);
+        assert_eq!(h.to_usize(), 7);
+        assert_eq!(i.to_usize(), 255);
     }
 }

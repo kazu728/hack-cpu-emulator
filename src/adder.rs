@@ -1,6 +1,22 @@
 use crate::bit::Bit;
+use crate::bit::Bit::{I, O};
+use crate::gate::*;
 
-use super::{full_adder, half_adder};
+pub fn half_adder(a: Bit, b: Bit) -> (Bit, Bit) {
+    let sum = xor(a, b);
+    let carry = and(a, b);
+
+    (carry, sum)
+}
+
+pub fn full_adder(a: Bit, b: Bit, c: Bit) -> (Bit, Bit) {
+    let (carry_ab, sum_ab) = half_adder(a, b);
+    let (carry_abc, sum) = half_adder(sum_ab, c);
+
+    let carry = or(carry_ab, carry_abc);
+
+    (carry, sum)
+}
 
 pub fn add16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     let (carry_15, sum_15) = half_adder(a[15], b[15]);
@@ -26,11 +42,35 @@ pub fn add16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     ]
 }
 
+pub fn inc16(a: [Bit; 16]) -> [Bit; 16] {
+    let b = [O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, I];
+
+    add16(a, b)
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::bit::Bit::{I, O};
+    use super::*;
 
-    use super::add16;
+    #[test]
+    fn test_half_adder() {
+        assert_eq!(half_adder(O, O), (O, O));
+        assert_eq!(half_adder(O, I), (O, I));
+        assert_eq!(half_adder(I, O), (O, I));
+        assert_eq!(half_adder(I, I), (I, O));
+    }
+
+    #[test]
+    fn test_full_adder() {
+        assert_eq!(full_adder(O, O, O), (O, O));
+        assert_eq!(full_adder(O, O, I), (O, I));
+        assert_eq!(full_adder(O, I, O), (O, I));
+        assert_eq!(full_adder(O, I, I), (I, O));
+        assert_eq!(full_adder(I, O, O), (O, I));
+        assert_eq!(full_adder(I, O, I), (I, O));
+        assert_eq!(full_adder(I, I, O), (I, O));
+        assert_eq!(full_adder(I, I, I), (I, I));
+    }
 
     #[test]
     fn test_add16() {
@@ -40,5 +80,13 @@ mod tests {
         let output = [I, I, O, I, I, I, O, I, O, O, I, O, I, I, O, O];
 
         assert_eq!(add16(a, b), output);
+    }
+
+    #[test]
+    fn test_inc16() {
+        let a = [O, I, I, O, I, O, I, O, O, O, I, I, O, I, O, I];
+        let b = [O, I, I, O, I, O, I, O, O, O, I, I, O, I, I, O];
+
+        assert_eq!(inc16(a), b);
     }
 }
