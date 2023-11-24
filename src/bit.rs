@@ -1,9 +1,33 @@
+use std::convert::TryInto;
+
 use Bit::{I, O};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Bit {
     O = 0,
     I = 1,
+}
+
+pub fn from_usize(n: u16) -> [Bit; 16] {
+    format!("{:0>16b}", n)
+        .chars()
+        .map(|c| match c {
+            '0' => O,
+            '1' => I,
+            _ => unreachable!(),
+        })
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap()
+}
+
+pub fn to_address(n: u16) -> [Bit; 15] {
+    let bits = from_usize(n);
+
+    [
+        bits[1], bits[2], bits[3], bits[4], bits[5], bits[6], bits[7], bits[8], bits[9], bits[10],
+        bits[11], bits[12], bits[13], bits[14], bits[15],
+    ]
 }
 
 pub trait BitSliceToUsize {
@@ -30,7 +54,7 @@ mod tests {
     };
 
     #[test]
-    fn test_to_decimal() {
+    fn test_to_usize() {
         let a = &[O, O, O];
         let b = &[O, O, I];
         let c = &[O, I, O];
