@@ -3,6 +3,19 @@ use crate::bit::Bit;
 use crate::bit::Bit::*;
 use crate::gate::*;
 
+#[derive(Debug, PartialEq, Eq)]
+pub struct AluOutput {
+    pub out: [Bit; 16], // 出力
+    pub zr: Bit,        // 出力がゼロか
+    pub ng: Bit,        // 出力が負か
+}
+
+impl AluOutput {
+    fn new(out: [Bit; 16], zr: Bit, ng: Bit) -> Self {
+        AluOutput { out, zr, ng }
+    }
+}
+
 pub fn alu(
     x: [Bit; 16], // input
     y: [Bit; 16], // input
@@ -12,15 +25,11 @@ pub fn alu(
     ny: Bit,      // 入力yを反転する
     f: Bit,       // 関数コード:1 は「加算」、0 は「And 演算」に対応する
     no: Bit,      // 出力 out を反転する
-) -> ([Bit; 16], Bit, Bit) {
-    let out = apply_no(
-        apply_f(
-            apply_nx(apply_zx(x, zx), nx),
-            apply_ny(apply_zy(y, zy), ny),
-            f,
-        ),
-        no,
-    );
+) -> AluOutput {
+    let x = apply_nx(apply_zx(x, zx), nx);
+    let y = apply_ny(apply_zy(y, zy), ny);
+
+    let out = apply_no(apply_f(x, y, f), no);
 
     let zr = not(or(
         or8way([
@@ -33,7 +42,7 @@ pub fn alu(
 
     let ng = out[0];
 
-    (out, zr, ng)
+    AluOutput::new(out, zr, ng)
 }
 
 fn apply_zx(x: [Bit; 16], zx: Bit) -> [Bit; 16] {
@@ -172,23 +181,47 @@ mod tests {
         let one = [O, O, O, O, O, O, O, O, O, O, O, O, O, O, O, I];
         let minus_one = [I, I, I, I, I, I, I, I, I, I, I, I, I, I, I, I];
 
-        assert_eq!(alu(x, y, I, O, I, O, I, O,), (zero, I, O));
-        assert_eq!(alu(x, y, I, I, I, I, I, I,), (one, O, O));
-        assert_eq!(alu(x, y, I, I, I, O, I, O,), (minus_one, O, I));
-        assert_eq!(alu(x, y, O, O, I, I, O, O,), (x, O, O));
-        assert_eq!(alu(x, y, I, I, O, O, O, O,), (y, O, O));
-        assert_eq!(alu(x, y, O, O, I, I, O, I,), (not16(x), O, I));
-        assert_eq!(alu(x, y, I, I, O, O, O, I,), (not16(y), O, I));
-        assert_eq!(alu(x, y, O, O, I, I, I, I,), (minus_x, O, I));
-        assert_eq!(alu(x, y, I, I, O, O, I, I,), (minus_y, O, I));
-        assert_eq!(alu(x, y, O, I, I, I, I, I,), (inc16(x), O, O));
-        assert_eq!(alu(x, y, I, I, O, I, I, I,), (inc16(y), O, O));
-        assert_eq!(alu(x, y, O, O, I, I, I, O,), (add16(x, minus_one), O, O));
-        assert_eq!(alu(x, y, I, I, O, O, I, O,), (add16(y, minus_one), O, O));
-        assert_eq!(alu(x, y, O, O, O, O, I, O,), (add16(x, y), O, I));
-        assert_eq!(alu(x, y, O, I, O, O, I, I,), (add16(x, minus_y), O, I));
-        assert_eq!(alu(x, y, O, O, O, I, I, I,), (add16(y, minus_x), O, O));
-        assert_eq!(alu(x, y, O, O, O, O, O, O,), (and16(x, y), O, O));
-        assert_eq!(alu(x, y, O, I, O, I, O, I,), (or16(x, y), O, O));
+        assert_eq!(alu(x, y, I, O, I, O, I, O,), AluOutput::new(zero, I, O));
+        assert_eq!(alu(x, y, I, I, I, I, I, I,), AluOutput::new(one, O, O));
+        assert_eq!(
+            alu(x, y, I, I, I, O, I, O,),
+            AluOutput::new(minus_one, O, I)
+        );
+        assert_eq!(alu(x, y, O, O, I, I, O, O,), AluOutput::new(x, O, O));
+        assert_eq!(alu(x, y, I, I, O, O, O, O,), AluOutput::new(y, O, O));
+        assert_eq!(alu(x, y, O, O, I, I, O, I,), AluOutput::new(not16(x), O, I));
+        assert_eq!(alu(x, y, I, I, O, O, O, I,), AluOutput::new(not16(y), O, I));
+        assert_eq!(alu(x, y, O, O, I, I, I, I,), AluOutput::new(minus_x, O, I));
+        assert_eq!(alu(x, y, I, I, O, O, I, I,), AluOutput::new(minus_y, O, I));
+        assert_eq!(alu(x, y, O, I, I, I, I, I,), AluOutput::new(inc16(x), O, O));
+        assert_eq!(alu(x, y, I, I, O, I, I, I,), AluOutput::new(inc16(y), O, O));
+        assert_eq!(
+            alu(x, y, O, O, I, I, I, O,),
+            AluOutput::new(add16(x, minus_one), O, O)
+        );
+        assert_eq!(
+            alu(x, y, I, I, O, O, I, O,),
+            AluOutput::new(add16(y, minus_one), O, O)
+        );
+        assert_eq!(
+            alu(x, y, O, O, O, O, I, O,),
+            AluOutput::new(add16(x, y), O, I)
+        );
+        assert_eq!(
+            alu(x, y, O, I, O, O, I, I,),
+            AluOutput::new(add16(x, minus_y), O, I)
+        );
+        assert_eq!(
+            alu(x, y, O, O, O, I, I, I,),
+            AluOutput::new(add16(y, minus_x), O, O)
+        );
+        assert_eq!(
+            alu(x, y, O, O, O, O, O, O,),
+            AluOutput::new(and16(x, y), O, O)
+        );
+        assert_eq!(
+            alu(x, y, O, I, O, I, O, I,),
+            AluOutput::new(or16(x, y), O, O)
+        );
     }
 }

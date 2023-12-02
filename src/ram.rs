@@ -1,5 +1,6 @@
+use crate::adder::inc16;
 use crate::bit::{Bit, Bit::*, BitSliceToUsize};
-use crate::gate::{mux, mux16, mux4way16, mux8way16};
+use crate::gate::{mux, mux16, mux4way16, mux8way16, or};
 
 use super::clock::Clock;
 use super::clock::ClockKind::*;
@@ -360,6 +361,102 @@ impl Ram16K {
     }
 }
 
+pub struct Rom32k {
+    ram4ks: Box<[Ram4K; 8]>, // Stackが溢れるのでヒープに置く
+}
+
+impl Rom32k {
+    pub fn new() -> Self {
+        Rom32k {
+            ram4ks: Box::new([Ram4K::new(); 8]),
+        }
+    }
+
+    pub fn next(&mut self, input: [Bit; 16], address: [Bit; 15], load: Bit) {
+        let lower_bit = [
+            address[0],
+            address[1],
+            address[2],
+            address[3],
+            address[4],
+            address[5],
+            address[6],
+            address[7],
+            address[8],
+            address[9],
+            address[10],
+            address[11],
+        ];
+        let upper_bit = [address[12], address[13], address[14]];
+
+        let current_ram4k = mux8way16(
+            self.ram4ks[0].out(lower_bit),
+            self.ram4ks[1].out(lower_bit),
+            self.ram4ks[2].out(lower_bit),
+            self.ram4ks[3].out(lower_bit),
+            self.ram4ks[4].out(lower_bit),
+            self.ram4ks[5].out(lower_bit),
+            self.ram4ks[6].out(lower_bit),
+            self.ram4ks[7].out(lower_bit),
+            upper_bit,
+        );
+
+        self.ram4ks[upper_bit.to_usize()].next(mux16(current_ram4k, input, load), lower_bit, load);
+    }
+
+    pub fn out(&mut self, address: [Bit; 15]) -> [Bit; 16] {
+        let lower_bit = [
+            address[0],
+            address[1],
+            address[2],
+            address[3],
+            address[4],
+            address[5],
+            address[6],
+            address[7],
+            address[8],
+            address[9],
+            address[10],
+            address[11],
+        ];
+        let upper_bit = [address[12], address[13], address[14]];
+
+        self.ram4ks[upper_bit.to_usize()].out(lower_bit)
+    }
+
+    pub fn clock(&mut self) {
+        self.ram4ks.iter_mut().for_each(|ram4k| ram4k.clock());
+    }
+}
+
+// TODO: add test code
+pub struct Counter {
+    register: Register,
+}
+impl Counter {
+    pub fn new() -> Self {
+        Self {
+            register: Register::new(),
+        }
+    }
+
+    pub fn next(&mut self, input: [Bit; 16], inc: Bit, load: Bit, reset: Bit) {
+        let current_out = inc16(self.register.out());
+        self.register.next(
+            mux16(mux16(current_out, input, load), [O; 16], reset),
+            or(inc, or(load, reset)),
+        );
+    }
+
+    pub fn out(&mut self) -> [Bit; 16] {
+        self.register.out()
+    }
+
+    pub fn clock(&mut self) {
+        self.register.clcok();
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -671,5 +768,55 @@ mod tests {
         ram16k.clock(); // Tick
 
         assert_eq!(ram16k.out([O, I, I, O, I, O, O, I, O, O, I, I, O, O]), b);
+    }
+
+    #[test]
+    fn test_rom32k() {
+        let a = [I, O, I, I, I, I, I, I, I, O, O, O, I, I, O, I];
+        let b = [I, O, I, I, O, I, O, I, O, I, I, O, I, I, O, O];
+        let c = [O, I, I, I, O, O, O, I, I, O, I, O, I, I, I, O];
+        let d = [O, I, O, O, O, I, I, I, I, O, I, O, O, O, I, O];
+        let e = [I, I, O, I, O, I, I, O, I, O, I, O, O, O, I, O];
+        let f = [I, I, O, I, O, I, O, O, I, O, I, I, I, O, I, I];
+        let g = [I, I, I, O, O, O, O, O, I, I, I, I, I, I, I, I];
+        let h = [O, I, I, O, I, O, O, O, O, I, O, I, I, I, I, O];
+
+        let mut rom32k = Rom32k::new();
+
+        rom32k.clock(); // Tock
+        rom32k.next(a, [O, I, I, O, I, O, O, I, O, O, I, I, O, O, I], I);
+        rom32k.next(b, [I, O, O, I, I, O, O, O, I, O, I, O, O, I, I], I);
+        rom32k.next(c, [O, I, I, O, O, I, O, I, O, O, O, O, I, O, O], I);
+        rom32k.next(d, [I, I, O, O, O, O, O, O, O, O, O, O, I, I, O], I);
+        rom32k.next(e, [I, O, O, O, O, I, I, I, O, O, O, I, O, O, I], I);
+        rom32k.next(f, [O, I, I, I, O, O, O, O, O, O, O, I, O, I, O], I);
+        rom32k.next(g, [O, I, O, O, I, I, O, O, O, I, O, I, I, O, I], I);
+        rom32k.next(h, [I, O, I, O, O, O, I, O, I, O, O, I, I, I, O], I);
+
+        rom32k.clock(); // Tick
+
+        assert_eq!(rom32k.out([O, I, I, O, I, O, O, I, O, O, I, I, O, O, I]), a);
+        assert_eq!(rom32k.out([I, O, O, I, I, O, O, O, I, O, I, O, O, I, I]), b);
+        assert_eq!(rom32k.out([O, I, I, O, O, I, O, I, O, O, O, O, I, O, O]), c);
+        assert_eq!(rom32k.out([I, I, O, O, O, O, O, O, O, O, O, O, I, I, O]), d);
+        assert_eq!(rom32k.out([I, O, O, O, O, I, I, I, O, O, O, I, O, O, I]), e);
+        assert_eq!(rom32k.out([O, I, I, I, O, O, O, O, O, O, O, I, O, I, O]), f);
+        assert_eq!(rom32k.out([O, I, O, O, I, I, O, O, O, I, O, I, I, O, I]), g);
+        assert_eq!(rom32k.out([I, O, I, O, O, O, I, O, I, O, O, I, I, I, O]), h);
+
+        rom32k.clock(); // Tock
+
+        rom32k.next(b, [O, I, I, O, I, O, O, I, O, O, I, I, O, O, I], O);
+        rom32k.clock(); // Tick
+
+        assert_eq!(rom32k.out([O, I, I, O, I, O, O, I, O, O, I, I, O, O, I]), a);
+
+        rom32k.clock(); // Tock
+
+        rom32k.next(b, [O, I, I, O, I, O, O, I, O, O, I, I, O, O, I], I);
+
+        rom32k.clock(); // Tick
+
+        assert_eq!(rom32k.out([O, I, I, O, I, O, O, I, O, O, I, I, O, O, I]), b);
     }
 }
